@@ -19,6 +19,7 @@ metadata:
 1. **Information Gathering**:
    - Fetch the active comments using the script `C:\Users\DESARROLLADOR\.claude\get_pr_comments.ps1`.
    - Pass the correct `-$prId` and adapt the workspace/repo in the script if needed.
+   - **Gotcha**: the script's default `-repo` is `"frontend_rh"`. This does NOT match every checkout's directory name — the real Bitbucket slug comes from `git remote -v` (e.g. this repo's working dir is `backend_rh` but its slug is `rh_new`, from `softgbq/rh_new.git`). Always confirm the slug via `git remote -v` before calling the script and pass it explicitly with `-repo`.
 
 2. **Project-Specific Best Practices**:
    - Before executing code changes, read the local `.atl/skill-registry.md` or use `mem_search` to load the current project's coding rules and conventions.
