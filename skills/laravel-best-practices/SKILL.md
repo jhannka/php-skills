@@ -148,3 +148,7 @@ Never leave the `authorize()` method of a `FormRequest` returning `true` uncondi
 - **Correct 5.4.x pattern** to get "only the fields declared in `rules()`, already validated": let validation run for its side effect (throwing on failure) via `$this->validate($request, $rules)` or FormRequest auto-validation, then separately do `$request->only(array_keys($rules))` (or `$formRequest->only(array_keys($formRequest->rules()))` — see §1 for why the FormRequest often has to be resolved manually via `app()` instead of type-hinted).
 
 Hit in production: PR 2284 (`VacancyController`, merged to `develop` with this exact bug — `$data=null` after `$this->validate()`) and PR 2287 (`ApplicationPublicController`, caught before merge — `$request->validated()` fatal). 2026-08-26.
+
+## 8. Artisan Commands Must Signal Failure
+
+An Artisan command's `handle()` returning normally (or falling off the end) always exits with code 0 ("success"), regardless of what happened inside — this includes a `catch (Exception $e) { DB::rollBack(); $this->error(...); }` block with no rethrow. Printing an error message via `$this->error()` is purely cosmetic to exit-code-driven callers (cron, CI, deploy scripts, `Artisan::call()` from other code): they only see "exit 0 = success" and won't notice the command's whole purpose failed. Always either rethrow after `rollBack()`, or `return 1;` (or any non-zero int) from `handle()`, so failures are actually detectable. Hit via PR 2298 (`SyncDaneCommand`), 2026-08-27.
