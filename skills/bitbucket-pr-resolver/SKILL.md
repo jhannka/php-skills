@@ -39,6 +39,8 @@ metadata:
    - Fix real bugs in the code.
    - Use `C:\Users\DESARROLLADOR\.claude\post_pr_reply.ps1` to reply to false positives or tech debt with technical justification (do not resolve them).
    - Use `C:\Users\DESARROLLADOR\.claude\resolve_comment.ps1` to resolve comments that are real bugs or simple typos that you have already fixed.
+   - **Never mark a comment resolved before the fix is pushed to the remote branch the PR tracks.** PRISM (and any automated reviewer) re-scans the actual pushed diff, not local commits — an unpushed fix produces duplicate/near-duplicate findings on the reviewer's next pass. Push first, then resolve.
+   - **Gotcha**: backticks (`` ` ``) inside a `-message "..."` string passed to `post_pr_reply.ps1` through the Bash tool trigger shell command substitution and get silently stripped/corrupted from the posted reply. Never use backtick-quoted inline code in a reply message sent via Bash — use plain text or a different quoting style instead.
 
 6. **Documentation and Sync**:
    - ALWAYS save the final decisions, justifications, and bugs fixed in Engram using `mem_save`.
