@@ -26,6 +26,7 @@ metadata:
 
 3. **Analysis and Planning**:
    - Generate a markdown checklist mapping each comment ID to the affected file and a diagnosis.
+   - **Always read the CURRENT code before trusting a comment's text.** Several findings across past sessions turned out to already be fixed by commits made after the review ran (or even before it, if the diff was fetched stale) — the comment text alone is not reliable evidence of the file's present state.
    - Evaluate if the finding is:
      - **False positive**: Document why.
      - **Real bug**: Plan the code fix.
