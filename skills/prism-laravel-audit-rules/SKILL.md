@@ -202,6 +202,14 @@ Broader OWASP sweep, `medium` severity minimum:
   client-visible field. Full rule, including which exception types are safe
   to show verbatim vs which need genericizing: `laravel-best-practices`
   skill §2 (Rules 3 and 5).
+- **Repo-specific distinction (real finding, not the false positive above)**:
+  `Log::error(['trace' => $e->getTraceAsString()])` is a DIFFERENT pattern
+  from logging `$e->getMessage()` — `getTraceAsString()` includes the
+  arguments passed to every stack frame by default, which can leak
+  tokens/PII even in a server-side-only log. Flag this one; the fix is
+  `ExceptionHandler::safeError($e, $msg)` (message/file/line/code only,
+  never the full trace). See `laravel-best-practices` skill §2 Rule 6. Hit
+  via PR 2287, 2026-08-26.
 
 ## architecture-reviewer (`ai/agents/prompts/architecture-reviewer.txt`, live, whole-diff)
 
