@@ -275,6 +275,19 @@ principles only.
   (`add_generos_permissions_to_administradores`,
   `run_generos_seeder`), 2026-08-27.
 
+- **Verification pattern for "exception thrown in a non-HTTP layer" findings**:
+  before accepting an architecture finding that a Listener/Job/Event handler
+  throwing an `HttpException` (or similar HTTP-specific exception) is a
+  layering violation, check whether that class actually implements
+  `ShouldQueue` (in `EventServiceProvider`/the class itself). If it does
+  NOT, it runs synchronously inside the same HTTP request as the event that
+  fired it, so an HTTP exception there has a real, working failure mode
+  today (it propagates back to the same response) — not just a stylistic
+  nitpick to defer. If it DOES implement `ShouldQueue`, the exception would
+  be silently swallowed by the queue worker instead, which is the real bug
+  to flag. Don't default to "architecture smell, defer" without checking
+  this first. Hit via PR 2294 (`AutoContractCandidateListener`), 2026-08-26.
+
 ## testing-reviewer (`ai/agents/prompts/testing-reviewer.txt`, live — applies to PHPUnit tests here)
 
 Tests that give false confidence:
