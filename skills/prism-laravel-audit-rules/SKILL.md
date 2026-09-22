@@ -211,6 +211,8 @@ Broader OWASP sweep, `medium` severity minimum:
   never the full trace). See `laravel-best-practices` skill §2 Rule 6. Hit
   via PR 2287, 2026-08-26.
 
+- **Repo-specific gap (Excel formula injection, PHPExcel exports)**: any `app/Exports/*.php` class writing a user-controlled string field (document numbers, names, free-text) via `setCellValue()` without checking for a leading `=`/`+`/`-`/`@` is vulnerable to formula injection when the file is opened in Excel/Sheets. Fixed in `ReportVacationsPaymentsNew.php` (PR 2390) with a `sanitizeFormulaPrefix()` helper that prepends `'` when needed. The same unsanitized pattern still exists in 12 other `app/Exports/*.php` classes (including the predecessor `ReportVacationsPayments.php`) — flag it per-file as encountered, not fixed repo-wide yet. 2026-09-22.
+
 ## architecture-reviewer (`ai/agents/prompts/architecture-reviewer.txt`, live, whole-diff)
 
 Emits **0-3 findings max**, critical/high only — high-signal by design:
