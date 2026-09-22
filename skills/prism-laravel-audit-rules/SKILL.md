@@ -288,6 +288,8 @@ principles only.
   to flag. Don't default to "architecture smell, defer" without checking
   this first. Hit via PR 2294 (`AutoContractCandidateListener`), 2026-08-26.
 
+- **Repo-specific exception (Export class family)**: don't flag "export generation coupled to storage" (build XLSX → `tempnam()` → `$writer->save()` → `Storage::disk('s3')->putFileAs()` → return URI, all inside one `export()` method) as a new SRP/layering violation on any class under `app/Exports/`. This is the established pattern across the whole family (13 classes as of PR 2390, e.g. `ReportVacationsPayments.php`, `ReportSettlementEmployees.php`, `AccountingSettlementsReport.php`), not something introduced per-PR. Same precedent covers two related performance findings prism raises repeatedly on this family: `PHPExcel` building the full workbook in memory with no streaming writer (PHPExcel, unlike PhpSpreadsheet, doesn't offer one), and `$writer->save()`/`putFileAs()` running synchronously inside the request. All three are real, systemic tech debt — but fixing one export class alone creates inconsistency without addressing the actual problem; only flag if a PR is specifically refactoring the export family's shared base, not for an individual new export class following the existing convention. Hit via PR 2390 (`ReportVacationsPaymentsNew`), 2026-09-22.
+
 ## testing-reviewer (`ai/agents/prompts/testing-reviewer.txt`, live — applies to PHPUnit tests here)
 
 Tests that give false confidence:
